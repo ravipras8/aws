@@ -1,0 +1,254 @@
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/SignatureGeneration.zip
+
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/STS.zip
+
+
+https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/
+https://docs.aws.amazon.com/sdkfornet/v3/apidocs/Index.html
+
+
+
+Java
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/S3.zip
+
+C#
+https://training-downloads.s3.ap-south-1.amazonaws.com/C%23/S3sample.zip
+
+
+[default1]
+aws_access_key_id = YOUR ACCESS KEY
+aws_secret_access_key = YOUR SECRET KEY
+
+
+
+Java
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/DynamoDB.zip
+
+C#
+https://training-downloads.s3.ap-south-1.amazonaws.com/C%23/DynamoDBsample.zip
+
+
+
+
+Java
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/SQS.zip
+
+C#
+https://training-downloads.s3.ap-south-1.amazonaws.com/C%23/SQSsample.zip
+
+
+
+
+
+
+
+
+Java
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/SNS.zip
+
+C#
+https://training-downloads.s3.ap-south-1.amazonaws.com/C%23/SNSsample.zip
+
+
+curl http://169.254.169.254/latest/meta-data/identity-credentials/ec2/security-credentials/ec2-instance
+
+
+
+
+
+
+sudo su
+apt-get update
+apt-get install -y unzip libwww-perl libdatetime-perl
+
+cd /home/ubuntu
+
+curl https://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.2.zip -O
+
+unzip CloudWatchMonitoringScripts-1.2.2.zip
+rm CloudWatchMonitoringScripts-1.2.2.zip
+cd aws-scripts-mon
+
+./mon-put-instance-data.pl --mem-util --verify --verbose
+
+crontab -e 
+
+*/5 * * * * /home/ubuntu/aws-scripts-mon/mon-put-instance-data.pl --mem-used-incl-cache-buff --mem-util --disk-space-util --disk-path=/ --from-cron
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo su
+apt-get update
+apt-get install -y python-pip
+pip install awscli
+
+aws configure
+
+curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
+python ./awslogs-agent-setup.py --region REGIONNAME
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Java
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/S3Lambda.zip
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/s3event-1.0.0.jar
+
+
+
+com.skaas.lambda.s3event.S3Lambda::handleRequest
+
+
+
+
+
+
+
+
+
+
+Java
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/Lambda.zip
+https://training-downloads.s3.ap-south-1.amazonaws.com/siemens/lambda-1.0.0.jar
+
+com.skaas.lambda.function.HelloWorld::handleRequest
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from json import loads
+from boto3 import resource
+from os import getenv
+from uuid import uuid4
+
+sqs = resource('sqs')
+dynamodb = resource('dynamodb')
+table = dynamodb.Table(getenv('TABLE'))
+
+
+def transform(sqs_message):
+    s3_records = loads(sqs_message['body'])['Records']
+    return map(lambda x: 's3://{}/{}'.format(x['s3']['bucket']['name'], x['s3']['object']['key']), s3_records)
+
+
+def lambda_handler(event, context):
+    print(event)
+    queue = sqs.get_queue_by_name(QueueName=event['Records'][0]['eventSourceARN'].split(':')[-1])
+    queue.delete_messages(
+        Entries=[{'Id': message['messageId'], 'ReceiptHandle': message['receiptHandle']} for message in event['Records']]
+    )
+    
+    table.put_item(Item={
+        'id': str(uuid4()),
+        'records': [object for sqs_message in map(transform, event['Records']) for object in sqs_message]
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+   "Sid": "s3-notification",
+   "Effect": "Allow",
+   "Principal": "*",
+   "Action": [
+    "SNS:Publish"
+   ],
+   "Resource": "TOPIC_ARN",
+   "Condition": {
+      "ArnLike": { "aws:SourceArn": "BUCKET_ARN" }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+https://app.skaas.guru/learner/my-assessments/36
+
+
